@@ -250,11 +250,11 @@ public class ThaiCheckerThinker {
 					best = test;
 					if (level==6) best = m;
 				}
-				
+
 				if (score > beta) {
 					return test;
 				}
-				
+
 			}			
 		} else {
 			
@@ -265,11 +265,11 @@ public class ThaiCheckerThinker {
 					beta = score;
 					best = test;
 				}
-				
+
 				if (score < alpha) {
 					return test;
 				}
-				
+
 			}
 			
 		}

@@ -32,7 +32,10 @@ public class SpriteBoard {
 	private SoundPool soundPool;
 	
 	private int volume;
-	
+
+	private ThaiCheckerBoard.Moving comMoved;
+    private boolean waiting;
+
 	private static final int [] TABLE = {
 		-1, 0, -1, 1, -1, 2, -1, 3, 
 		4, -1, 5, -1, 6, -1, 7, -1,
@@ -196,29 +199,47 @@ public class SpriteBoard {
 						if (availableMovings.isEmpty()) {
 							if (board.score()>0) return ThaiCheckerBoard.GAME_OVER_BLACK_WIN;
 							return ThaiCheckerBoard.GAME_OVER_WHITE_WIN;
-						}						
-					
-						ThaiCheckerBoard.Moving comMoved = ThaiCheckerThinker.minimax(lastMoving);
-						if (comMoved instanceof ThaiCheckerBoard.Killing) {
-							soundPool.play(swordSound, volume, volume, 1, 0, 1);
-						} else {
-							soundPool.play(stepSound, volume, volume, 1, 0, 1);							
-						}
-						board = comMoved.next();						
-					
-						state = board.state();
-						if (state!=ThaiCheckerBoard.GAME_PLAYING) return state;
-						
-						availableMovings = ThaiCheckerThinker.think(board, ThaiCheckerBoard.WHITE_PLAYER);
-						
-						if (availableMovings.isEmpty()) {
-							if (board.score()>0) return ThaiCheckerBoard.GAME_OVER_BLACK_WIN;
-							return ThaiCheckerBoard.GAME_OVER_WHITE_WIN;
 						}
 
+						if (comMoved==null) {
+
+                            if (waiting==false) {
+                                waiting = true;
+                                new Thread() {
+                                    public void run() {
+                                        comMoved = ThaiCheckerThinker.minimax(lastMoving);
+                                        waiting = false;
+                                    }
+                                }.start();
+                            } else {
+                                //Wait
+                                System.out.println("Wait...");
+                            }
+
+						} else {
+
+							if (comMoved instanceof ThaiCheckerBoard.Killing) {
+								soundPool.play(swordSound, volume, volume, 1, 0, 1);
+							} else {
+								soundPool.play(stepSound, volume, volume, 1, 0, 1);
+							}
+							board = comMoved.next();
+
+							state = board.state();
+							if (state != ThaiCheckerBoard.GAME_PLAYING) return state;
+
+							availableMovings = ThaiCheckerThinker.think(board, ThaiCheckerBoard.WHITE_PLAYER);
+
+							if (availableMovings.isEmpty()) {
+								if (board.score() > 0) return ThaiCheckerBoard.GAME_OVER_BLACK_WIN;
+								return ThaiCheckerBoard.GAME_OVER_WHITE_WIN;
+							}
+
+							comMoved = null;
+                            lastMoving = null;
+                        }
 						
 					} finally {
-						lastMoving = null;						
 						System.gc();
 					}
 				}
