@@ -13,7 +13,9 @@ public class GameActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        gameView = new GameView(this);
+
+		int numPlayers = getIntent().getIntExtra("numPlayers", 1);
+        gameView = new GameView(this, numPlayers);
         setContentView(gameView);
     }
     

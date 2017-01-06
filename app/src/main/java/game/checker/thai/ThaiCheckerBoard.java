@@ -17,7 +17,9 @@ public class ThaiCheckerBoard {
 	public static final int GAME_OVER_WHITE_WIN = 3;
 
 	private byte [] gameState;
-	
+
+    private boolean fightingMode;
+
 	public ThaiCheckerBoard() {
 		this (new byte[] 
 				{  BS, BS, BS, BS,
@@ -27,11 +29,12 @@ public class ThaiCheckerBoard {
 				   XX, XX, XX, XX,
 				  XX, XX, XX, XX,
 				   WS, WS, WS, WS,
-				  WS, WS, WS, WS });
+				  WS, WS, WS, WS }, false);
 	}
 	
-	public ThaiCheckerBoard(byte[]gameState) {
+	public ThaiCheckerBoard(byte[]gameState, boolean fightingMode) {
 		this.gameState = gameState;
+        this.fightingMode = fightingMode;
 	}
 
 	/**
@@ -54,7 +57,7 @@ public class ThaiCheckerBoard {
 		{20, 21, 28, 29}, {21, 22, 29, 30}, {22, 23, 30, 31}, {23, -1, 31, -1}, 
 		{-1, 24, -1, -1}, {24, 25, -1, -1}, {25, 26, -1, -1}, {26, 27, -1, -1}, 
 		};
-	
+	/*
 	private static final int [] scoreBoard = {	
 		4, 4, 4, 4,
 	   4, 3, 3, 3,
@@ -64,17 +67,31 @@ public class ThaiCheckerBoard {
 	   4, 2, 2, 3,
 	    3, 3, 3, 4,
 	   4, 4, 4, 4,
+	};*/
+
+	private static final int [] scoreBoard = {
+			0, 1, 1, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 1, 1, 0,
 	};
 	
 	public class Moving {
-		int from, to;
+		int player, from, to;
 		ThaiCheckerBoard nextBoard;
-		Moving(int from, int to) {
+		Moving(int player, int from, int to) {
+			this.player = player;
 			this.from = from;
 			this.to = to;
 			nextBoard = ThaiCheckerBoard.this;
 		}
-		
+
+        public int getPlayer() {return player;}
+        public int getOpponent() {return player==BLACK_PLAYER?WHITE_PLAYER:BLACK_PLAYER;}
 		public int getFrom() {return from;}
 		public int getTo() {return to;}
 		public ThaiCheckerBoard next() {
@@ -84,8 +101,8 @@ public class ThaiCheckerBoard {
 		
 	public class Walking extends Moving {
 		
-		public Walking(int from, int to, boolean canPromote) { 
-			super (from, to); 
+		public Walking(int player, int from, int to, boolean canPromote) {
+			super (player, from, to);
 			byte [] newGameState = new byte[gameState.length];
 			System.arraycopy(gameState, 0, newGameState, 0, gameState.length);
 
@@ -99,15 +116,15 @@ public class ThaiCheckerBoard {
 				newGameState[to]++;
 			}
 			
-			nextBoard = new ThaiCheckerBoard(newGameState);
+			nextBoard = new ThaiCheckerBoard(newGameState, fightingMode);
 		}
 		
 	}
 	
 	public class Killing extends Moving {
 		
-		public Killing(int from, int to, int target, boolean canPromote) { 
-			super (from, to); 
+		public Killing(int player, int from, int to, int target, boolean canPromote) {
+			super (player, from, to);
 			byte [] newGameState = new byte[gameState.length];
 			System.arraycopy(gameState, 0, newGameState, 0, gameState.length);
 
@@ -122,7 +139,7 @@ public class ThaiCheckerBoard {
 				newGameState[to]++;
 			}
 			
-			nextBoard = new ThaiCheckerBoard(newGameState);
+			nextBoard = new ThaiCheckerBoard(newGameState, fightingMode);
 		}
 		
 	}
@@ -133,27 +150,87 @@ public class ThaiCheckerBoard {
 		return PATH[from][direction];
 	}
 
-	public int score() {
+    public int count() {
+        int value, which;
+
+        int score = 0;
+        for (int w=0; w<gameState.length; w++) {
+
+            which = gameState[w];
+
+            switch (which) {
+                case BS: value = 1; break;
+                case BK: value = 10; break;
+                case WS: value = -1; break;
+                case WK: value = -10; break;
+                default: value = 0;
+            }
+
+            score+=value;
+        }
+
+        return score;
+    }
+
+	public int _score() {
 		int value, which;
 		
 		int score = 0;
+        int blackCount = 0;
+		int whiteCount = 0;
 		for (int w=0; w<gameState.length; w++) {
 			
 			which = gameState[w];
 			
 			switch (which) {
-			case BS: value = (w >= 24 && w <=27)? 7:5; break;
-			case BK: value = 10; break;
-			case WS: value = (w >= 4 && w <=7)? -7:-5; break;
-			case WK: value = -10; break;
+			case BS: value = (w >= 24 && w <=27)? 70: (w==0||w==1||w==2||w==6) ? 60 : 50; blackCount++; break;
+			case BK: value = 100; blackCount++; break;
+			case WS: value = (w >= 4 && w <=7)? -70: (w==25||w==29||w==30||w==31) ? -60 : -50; whiteCount++; break;
+			case WK: value = -100; whiteCount++; break;
 			default: value = 0;
 			}
 			
-			score+=value + scoreBoard[w];
+			score += value + scoreBoard[w];
 		}
+
+        //Win
+        if (whiteCount==0) {
+            return 100;
+        }
 		
 		return score;
 	}
+
+    public int score() {
+        int which;
+
+        int score = 0;
+        int blackCount = 0;
+        int whiteCount = 0;
+        for (int w=0; w<gameState.length; w++) {
+
+            which = gameState[w];
+
+            switch (which) {
+                case BS: score += (w >= 24 && w <=27)? 12: 10 + scoreBoard[w]; blackCount++; break;
+                case BK: score += 15; blackCount++; break;
+                case WS: score -= (w >= 4 && w <=7)? 12: 10 + scoreBoard[w]; whiteCount++; break;
+                case WK: score -= 15; whiteCount++; break;
+            }
+
+        }
+
+        //Win
+        if (whiteCount==0) {
+            return 50;
+        }
+
+        return score;
+    }
+
+    public boolean isfightingMode() {
+        return fightingMode;
+    }
 	
 	public int state() {
 		
@@ -162,15 +239,18 @@ public class ThaiCheckerBoard {
 		
 		int whiteSoldierCount = 0;
 		int whiteKingCount = 0;
-		
-		for (int w:gameState)
-			switch (w) {
-			case BS: blackSoldierCount++; break;
-			case BK: blackKingCount++; break;
-			case WS: whiteSoldierCount++; break;
-			case WK: whiteKingCount++; break;
-			}
-		
+
+        int w;
+        for (int i=0; i<gameState.length; i++) {
+            w = gameState[i];
+            switch (w) {
+                case BS: blackSoldierCount++; break;
+                case BK: blackKingCount++; break;
+                case WS: whiteSoldierCount++; if (!fightingMode) fightingMode=i<=19; break;
+                case WK: whiteKingCount++; break;
+            }
+        }
+
 		int blackTeamCount = blackSoldierCount + blackKingCount;
 		int whiteTeamCount = whiteSoldierCount + whiteKingCount;
 		
@@ -181,7 +261,10 @@ public class ThaiCheckerBoard {
 			if (whiteTeamCount==0)
 				return GAME_OVER_BLACK_WIN;
 
-		} 
+		}  else if (blackTeamCount==1 && (gameState[3]==XX && gameState[28]==XX)) {
+
+			return GAME_OVER_DRAW;
+		}
 		
 		return GAME_PLAYING;
 	}

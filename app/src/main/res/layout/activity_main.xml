@@ -1,9 +1,20 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/war"
-    tools:context=".MainActivity" >
+    android:background="@android:color/holo_blue_dark">
+
+    <TextView
+        android:text="นักเลงฮอส"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/playButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="80dp"
+        android:id="@+id/textView2"
+        android:textColor="@android:color/white"
+        android:fontFamily="sans-serif"
+        android:textSize="40dip" />
+
 
     <Button
         android:id="@+id/playButton"
@@ -11,25 +22,44 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:background="#532c2d"
-        android:text="Play"
-        android:textColor="@android:color/white"
-        android:textSize="50dip"
+        android:text="ไขว้กับพี่เข้ม"
+        android:textSize="20dip"
         android:textStyle="bold"
-        android:width="200dp" />
+        android:width="200dp"
+        android:textColor="@android:color/holo_blue_dark"
+        android:background="@android:color/white"
+        />
 
     <Button
+        android:id="@+id/play2Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ไขว้กับเพื่อน"
+        android:textSize="20dip"
+        android:textStyle="bold"
+        android:width="200dp"
+        android:layout_below="@+id/playButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:textColor="@android:color/holo_blue_dark"
+        android:background="@android:color/white"
+        />
+
+    <ToggleButton
         android:id="@+id/optionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/playButton"
-        android:layout_below="@+id/playButton"
-        android:background="#532c2d"
-        android:layout_marginTop="66dp"
         android:text="Option"
-        android:textColor="@android:color/white"
-        android:textSize="50dip"
+        android:textSize="20dip"
         android:textStyle="bold"
-        android:width="200dp" />
+        android:width="200dp"
+        android:layout_below="@+id/play2Button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:textOff="เงียบ"
+        android:textOn="มีเสียง"
+        android:textColor="@android:color/holo_blue_dark"
+        android:background="@android:color/white"
+        />
 
 </RelativeLayout>

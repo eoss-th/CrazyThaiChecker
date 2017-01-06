@@ -5,7 +5,9 @@ import java.util.List;
 
 public class ThaiCheckerThinker {
 
-	private static List<ThaiCheckerBoard.Moving> recursiveSoldierEat(
+	private static int maxDeep = 0;
+
+	private static List<ThaiCheckerBoard.Moving> recursiveSoldierEat(int player,
 			ThaiCheckerBoard board, int soldier, int startDir,int endDir, int soldierOpponent, int kingOpponent, int position, int firstStart) {
 		List<ThaiCheckerBoard.Moving> result = new ArrayList<ThaiCheckerBoard.Moving>();
 		int nextPosition, which, targetPosition;
@@ -29,11 +31,11 @@ public class ThaiCheckerThinker {
 				if (which==ThaiCheckerBoard.XX) {
 					
 					ThaiCheckerBoard.Moving killing = 
-							board.new Killing(position, nextPosition, targetPosition, true);
+							board.new Killing(player, position, nextPosition, targetPosition, true);
 					
 					//Search available next eating
 					List<ThaiCheckerBoard.Moving> nextEating = 
-							recursiveSoldierEat(killing.next(), soldier, startDir, endDir, soldierOpponent, kingOpponent, nextPosition, firstStart);
+							recursiveSoldierEat(player, killing.next(), soldier, startDir, endDir, soldierOpponent, kingOpponent, nextPosition, firstStart);
 					
 					//Add only final eating
 					if (nextEating.isEmpty()) {
@@ -55,7 +57,7 @@ public class ThaiCheckerThinker {
 		return result;
 	}
 	
-	private static List<ThaiCheckerBoard.Moving> soldierEat(
+	private static List<ThaiCheckerBoard.Moving> soldierEat(int player,
 			ThaiCheckerBoard board, int soldier, int startDir,int endDir, int soldierOpponent, int kingOpponent) {
 
 		List<ThaiCheckerBoard.Moving> result = new ArrayList<ThaiCheckerBoard.Moving>();
@@ -66,14 +68,14 @@ public class ThaiCheckerThinker {
 			which = board.get(position);
 			if (which==soldier) {
 				
-				result.addAll(recursiveSoldierEat(board, soldier, startDir, endDir, soldierOpponent, kingOpponent, position, position));
+				result.addAll(recursiveSoldierEat(player, board, soldier, startDir, endDir, soldierOpponent, kingOpponent, position, position));
 
 			}
 		}
 		return result;
 	}
 	
-	private static List<ThaiCheckerBoard.Moving> recursiveKingEat(ThaiCheckerBoard board, int king, int soldierOpponent, int kingOpponent, int position, int firstStart) {
+	private static List<ThaiCheckerBoard.Moving> recursiveKingEat(int player, ThaiCheckerBoard board, int king, int soldierOpponent, int kingOpponent, int position, int firstStart) {
 		List<ThaiCheckerBoard.Moving> result = new ArrayList<ThaiCheckerBoard.Moving>();
 		int nextPosition, which, targetPosition;
 		
@@ -104,10 +106,10 @@ public class ThaiCheckerThinker {
 					if (which==ThaiCheckerBoard.XX) {
 						
 						ThaiCheckerBoard.Moving killing = 
-								board.new Killing(position, nextPosition, targetPosition, false);
+								board.new Killing(player, position, nextPosition, targetPosition, false);
 						
 						//Search available next eating
-						List<ThaiCheckerBoard.Moving> nextEating = recursiveKingEat(killing.next(), king, soldierOpponent, kingOpponent, nextPosition, firstStart);
+						List<ThaiCheckerBoard.Moving> nextEating = recursiveKingEat(player, killing.next(), king, soldierOpponent, kingOpponent, nextPosition, firstStart);
 						
 						//Add only final eating
 						if (nextEating.isEmpty()) {
@@ -129,7 +131,7 @@ public class ThaiCheckerThinker {
 		return result;
 	}
 	
-	private static List<ThaiCheckerBoard.Moving> kingEat(ThaiCheckerBoard board, int king, int soldierOpponent, int kingOpponent) {
+	private static List<ThaiCheckerBoard.Moving> kingEat(int player, ThaiCheckerBoard board, int king, int soldierOpponent, int kingOpponent) {
 
 		List<ThaiCheckerBoard.Moving> result = new ArrayList<ThaiCheckerBoard.Moving>();
 		int which;
@@ -139,18 +141,18 @@ public class ThaiCheckerThinker {
 			which = board.get(position);
 			if (which==king) {
 
-				result.addAll(recursiveKingEat(board, king, soldierOpponent, kingOpponent, position, position));
+				result.addAll(recursiveKingEat(player, board, king, soldierOpponent, kingOpponent, position, position));
 				
 			}
 		}
 		return result;
 	}
 	
-	public static List<ThaiCheckerBoard.Moving> think(ThaiCheckerBoard board, int team) {
+	public static List<ThaiCheckerBoard.Moving> think(int player, ThaiCheckerBoard board) {
 
 		List<ThaiCheckerBoard.Moving> result = new ArrayList<ThaiCheckerBoard.Moving>();
 		int nextPosition, which, startDir, endDir, soldier, king, soldierOpponent, kingOpponent;
-		if (team == ThaiCheckerBoard.BLACK_PLAYER) {
+		if (player == ThaiCheckerBoard.BLACK_PLAYER) {
 
 			soldier = ThaiCheckerBoard.BS;
 			king = ThaiCheckerBoard.BK;
@@ -171,9 +173,9 @@ public class ThaiCheckerThinker {
 		}
 
 		result.addAll(
-				soldierEat(board, soldier, startDir, endDir, soldierOpponent, kingOpponent));
+				soldierEat(player, board, soldier, startDir, endDir, soldierOpponent, kingOpponent));
 		result.addAll(
-				kingEat(board, king, soldierOpponent, kingOpponent));
+				kingEat(player, board, king, soldierOpponent, kingOpponent));
 		//Can walk?
 		if (result.isEmpty()) {
 			for (int position=0; position<board.size(); position++) {
@@ -190,7 +192,7 @@ public class ThaiCheckerThinker {
 						if (which==ThaiCheckerBoard.XX) {
 							
 							ThaiCheckerBoard.Moving walking = 
-									board.new Walking(position, nextPosition, true);
+									board.new Walking(player, position, nextPosition, true);
 														
 							result.add(walking);
 						} 
@@ -210,7 +212,7 @@ public class ThaiCheckerThinker {
 							if (which==ThaiCheckerBoard.XX) {
 								
 								ThaiCheckerBoard.Moving walking = 
-										board.new Walking(position, nextPosition, false);
+										board.new Walking(player, position, nextPosition, false);
 															
 								result.add(walking);
 								
@@ -233,7 +235,7 @@ public class ThaiCheckerThinker {
 		
 		if (level==0) return moving;
 				
-		List<ThaiCheckerBoard.Moving> choices = think(moving.next(), player);
+		List<ThaiCheckerBoard.Moving> choices = think(player, moving.next());
 		
 		if (choices.isEmpty()) return moving;
 		
@@ -248,7 +250,7 @@ public class ThaiCheckerThinker {
 				if (score > alpha) {
 					alpha = score;
 					best = test;
-					if (level==6) best = m;
+					if (level==maxDeep) best = m;
 				}
 
 				if (score > beta) {
@@ -277,7 +279,8 @@ public class ThaiCheckerThinker {
 		return best;
 	}
 		
-	public static ThaiCheckerBoard.Moving minimax(ThaiCheckerBoard.Moving moving) {
-		return minimax(ThaiCheckerBoard.BLACK_PLAYER, moving, 6, Integer.MIN_VALUE, Integer.MAX_VALUE);
+	public static ThaiCheckerBoard.Moving minimax(ThaiCheckerBoard.Moving moving, int deep) {
+		maxDeep = deep;
+		return minimax(ThaiCheckerBoard.BLACK_PLAYER, moving, deep, Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
 }

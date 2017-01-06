@@ -35,10 +35,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	
 	private int bgColor;
 	
-	private SpriteButton resetButton;
+    //private SpriteButton resetButton;
+
+	private int numPlayers;
 	
-	public GameView(Activity context) {
+	public GameView(Activity context, int numPlayers) {
 		super(context);
+
+		this.numPlayers = numPlayers;
 		setFocusable(true);	
 		
 		getHolder().addCallback(this);
@@ -48,11 +52,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			public boolean onTouch(View v, MotionEvent event){
 				
 				if (event.getAction()==MotionEvent.ACTION_DOWN) {
-					
+
+                    /*
 					if (resetButton.contains((int)event.getX(), (int)event.getY())) {
 						resetButton.onPressed();
 						return true;
-					}
+					}*/
 					
 					Bitmap img = spriteBoard.drag((int)event.getX(), (int)event.getY());
 					if (img!=null) {
@@ -67,14 +72,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 						draggingSprite.setY((int)event.getY());
 						return true;
 					}
-			}
+				}
 				
 				if (event.getAction()==MotionEvent.ACTION_UP) {
-					
+
+                    /*
 					if (resetButton.isPressing()) {
 						resetButton.onReleased();
 						return true;
-					}
+					}*/
 					
 					//Drop
 					if (draggingSprite != null) {
@@ -90,9 +96,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		
 		handler = new Handler();
 		this.context = context;
-		newGame();
-		bgColor = Color.parseColor("#532c2d");		
-		
+		newGame(this.numPlayers);
+		bgColor = context.getResources().getColor(android.R.color.holo_blue_dark);
+
+        /*
 		resetButton = new SpriteButton(
 				BitmapFactory.decodeResource(getResources(),R.drawable.reset),
 				BitmapFactory.decodeResource(getResources(),R.drawable.reset_blur),
@@ -104,22 +111,23 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			@Override
 			public void onClicked(SpriteButton b) {
 	        	   mGameLogic.setGameState(GameLogic.PAUSE);
-	        	   newGame();
+	        	   newGame(GameView.this.numPlayers);
 	        	   mGameLogic.setGameState(GameLogic.RUNNING);
 	        	   mGameLogic.start();
 			}
 			
 		});
+		*/
 	}
 	
-	private void newGame() {
+	private void newGame(int numPlayers) {
 		DisplayMetrics m = new DisplayMetrics();
 		context.getWindowManager().getDefaultDisplay().getMetrics(m);
 		
 		System.out.println(m.widthPixels+"," +m.heightPixels);
 		int x = m.widthPixels/2 - BitmapFactory.decodeResource(getResources(),R.drawable.board).getWidth()/2;
 		int y = m.heightPixels/2 - BitmapFactory.decodeResource(getResources(),R.drawable.board).getHeight()/2;
-		
+		y = m.widthPixels/4;
 		checkerBoard = new ThaiCheckerBoard(/*new byte[] 
 					{  XX, XX, XX, XX,
 					  XX, BS, BS, BS,
@@ -130,7 +138,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					   WS, WS, XX, WS,
 					  XX, XX, XX, XX}*/);
 		
-		spriteBoard = new SpriteBoard(this.context, checkerBoard,
+		spriteBoard = new SpriteBoard(this.context, checkerBoard, numPlayers,
 				BitmapFactory.decodeResource(getResources(),R.drawable.board),
 				BitmapFactory.decodeResource(getResources(),R.drawable.red),
 				BitmapFactory.decodeResource(getResources(),R.drawable.red_king),
@@ -163,7 +171,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		canvas.drawColor(bgColor); //bg
 		spriteBoard.draw(canvas);
 		
-		resetButton.draw(canvas);
+		//resetButton.draw(canvas);
 		
 		if (draggingSprite!=null)
 			draggingSprite.draw(canvas);
@@ -191,7 +199,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 					           public void onClick(DialogInterface dialog, int id) {
 					        	   
-					        	   newGame();
+					        	   newGame(numPlayers);
 					        	   mGameLogic.setGameState(GameLogic.RUNNING);
 					        	   mGameLogic.start();
 					        	   

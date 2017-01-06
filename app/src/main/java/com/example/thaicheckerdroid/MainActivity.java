@@ -23,13 +23,23 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				//textView.setText("Best game in the world");
 				Intent i = new Intent(MainActivity.this, GameActivity.class);
-				
+				i.putExtra("numPlayers", 1);
 				startActivity(i);
 			}
 		});
-        
+
+        Button play2Button = (Button) findViewById(R.id.play2Button);
+        play2Button.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, GameActivity.class);
+                i.putExtra("numPlayers", 2);
+                startActivity(i);
+            }
+        });
+
         Button optionButton = (Button) findViewById(R.id.optionButton);
         optionButton.setOnClickListener(new OnClickListener() {
 
@@ -37,13 +47,6 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 			}
 		});
-
-        
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
-    }
 }
