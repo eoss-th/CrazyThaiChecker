@@ -26,8 +26,8 @@
         android:textSize="20dip"
         android:textStyle="bold"
         android:width="200dp"
-        android:textColor="@android:color/holo_blue_dark"
-        android:background="@android:color/white"
+        android:textColor="@android:color/white"
+        android:background="@android:color/holo_orange_dark"
         />
 
     <Button
@@ -41,8 +41,8 @@
         android:layout_below="@+id/playButton"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="40dp"
-        android:textColor="@android:color/holo_blue_dark"
-        android:background="@android:color/white"
+        android:textColor="@android:color/white"
+        android:background="@android:color/holo_green_dark"
         />
 
     <ToggleButton

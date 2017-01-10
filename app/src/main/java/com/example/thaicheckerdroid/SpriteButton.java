@@ -2,7 +2,7 @@ package com.example.thaicheckerdroid;
 
 import android.graphics.Bitmap;
 
-public class SpriteButton extends SpriteObject {
+public class SpriteButton extends SpriteBitmap {
 	
 	private Bitmap normalBitmap;
 	private Bitmap pressedBitmap;

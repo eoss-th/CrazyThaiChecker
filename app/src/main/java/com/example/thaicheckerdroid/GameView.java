@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -18,7 +17,7 @@ import android.view.View;
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	private SpriteBoard spriteBoard;
-	private SpriteObject draggingSprite;
+	private SpriteCircle draggingSprite;
 	private GameLogic mGameLogic;
 	
 	private ThaiCheckerBoard checkerBoard;
@@ -58,18 +57,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 						resetButton.onPressed();
 						return true;
 					}*/
+
+					int x, y;
+					x = (int) event.getX();
+					y = (int) event.getY();
 					
-					Bitmap img = spriteBoard.drag((int)event.getX(), (int)event.getY());
-					if (img!=null) {
-						draggingSprite = new SpriteObject(img, (int)event.getX(), (int)event.getY());
+					SpriteCircle spriteCircle = spriteBoard.drag(x, y);
+					if (spriteCircle!=null) {
+						draggingSprite = new SpriteCircle(spriteCircle);
+						draggingSprite.center(x, y);
 						return true;
 					}
 				}
 				
 				if (event.getAction()==MotionEvent.ACTION_MOVE){
 					if (draggingSprite != null) {
-						draggingSprite.setX((int)event.getX());
-						draggingSprite.setY((int)event.getY());
+						draggingSprite.center((int)event.getX(), (int)event.getY());
 						return true;
 					}
 				}
@@ -125,10 +128,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		context.getWindowManager().getDefaultDisplay().getMetrics(m);
 		
 		System.out.println(m.widthPixels+"," +m.heightPixels);
-		int x = m.widthPixels/2 - BitmapFactory.decodeResource(getResources(),R.drawable.board).getWidth()/2;
-		int y = m.heightPixels/2 - BitmapFactory.decodeResource(getResources(),R.drawable.board).getHeight()/2;
-		y = m.widthPixels/4;
-		checkerBoard = new ThaiCheckerBoard(/*new byte[] 
+		int x = 0;
+		int y = m.widthPixels/4;
+
+		checkerBoard = new ThaiCheckerBoard(/*new byte[]
 					{  XX, XX, XX, XX,
 					  XX, BS, BS, BS,
 					   BS, XX, BS, BS,
@@ -138,14 +141,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					   WS, WS, XX, WS,
 					  XX, XX, XX, XX}*/);
 		
-		spriteBoard = new SpriteBoard(this.context, checkerBoard, numPlayers,
-				BitmapFactory.decodeResource(getResources(),R.drawable.board),
-				BitmapFactory.decodeResource(getResources(),R.drawable.red),
-				BitmapFactory.decodeResource(getResources(),R.drawable.red_king),
-				BitmapFactory.decodeResource(getResources(),R.drawable.orange),
-				BitmapFactory.decodeResource(getResources(),R.drawable.orange_king),
-				x, y
-				);
+		spriteBoard = new SpriteBoard(this.context, checkerBoard, numPlayers, x, y, m.widthPixels);
 				
 		mGameLogic = new GameLogic(getHolder(), this);
 	}

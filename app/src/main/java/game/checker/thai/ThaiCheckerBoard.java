@@ -213,9 +213,9 @@ public class ThaiCheckerBoard {
 
             switch (which) {
                 case BS: score += (w >= 24 && w <=27)? 12: 10 + scoreBoard[w]; blackCount++; break;
-                case BK: score += 15; blackCount++; break;
+                case BK: score += 20; blackCount++; break;
                 case WS: score -= (w >= 4 && w <=7)? 12: 10 + scoreBoard[w]; whiteCount++; break;
-                case WK: score -= 15; whiteCount++; break;
+                case WK: score -= 20; whiteCount++; break;
             }
 
         }

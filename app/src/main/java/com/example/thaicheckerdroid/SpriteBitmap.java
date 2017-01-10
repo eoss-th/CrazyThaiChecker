@@ -3,14 +3,14 @@ package com.example.thaicheckerdroid;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
-public class SpriteObject {
+public class SpriteBitmap {
 	private Bitmap bitmap;
 	private int x;
 	private int y;
 	private int width;
 	private int height;
 
-	public SpriteObject(Bitmap bitmap, int x, int y) {
+	public SpriteBitmap(Bitmap bitmap, int x, int y) {
 		this.bitmap = bitmap;
 		this.x = x;
 		this.y = y;

@@ -16,13 +16,8 @@ import android.media.SoundPool;
 public class SpriteBoard {
 	
 	private ThaiCheckerBoard board;
-	private Bitmap bitmap;
 	private int x;
 	private int y;
-	private Bitmap blackSoldier;
-	private Bitmap blackKing;
-	private Bitmap whiteSoldier;
-	private Bitmap whiteKing;
 	private int pieceSize;
 	private int boardSize;
 	private int draggingIndex;
@@ -44,17 +39,11 @@ public class SpriteBoard {
 	private Paint boardPaint1;
 	private Paint boardPaint2;
 
-    private Paint borderPaint;
+	private SpriteCircle blackSprite;
+	private SpriteCircle blackKingSprite;
 
-    private Paint blackPaint;
-    private Paint blackBorderPaint;
-    private Paint blackKingPaint;
-    private Paint blackKingBorderPaint;
-
-    private Paint whitePaint;
-    private Paint whiteBorderPaint;
-    private Paint whiteKingPaint;
-    private Paint whiteKingBorderPaint;
+	private SpriteCircle whiteSprite;
+	private SpriteCircle whiteKingSprite;
 
     private boolean isFightingMode;
     private int count;
@@ -70,20 +59,13 @@ public class SpriteBoard {
 		28, -1, 29, -1, 30, -1, 31, -1,		
 	};
 
-	public SpriteBoard(Context context, ThaiCheckerBoard board, int numPlayers,
-			Bitmap bitmap, Bitmap blackSoldier, Bitmap blackKing, Bitmap whiteSoldier, Bitmap whiteKing, int x, int y) {
+	public SpriteBoard(Context context, ThaiCheckerBoard board, int numPlayers, int x, int y, int boardSize) {
 		this.board = board;
 		this.numPlayers = numPlayers;
-		this.bitmap = bitmap;
 		this.x = x;
 		this.y = y;
 		
-		this.blackSoldier = blackSoldier;
-		this.blackKing = blackKing;
-		this.whiteSoldier = whiteSoldier;
-		this.whiteKing = whiteKing;
-		
-		boardSize = this.bitmap.getWidth();
+		this.boardSize = boardSize;
 		pieceSize = boardSize / 8;
 		draggingIndex = -1;
 		
@@ -110,46 +92,12 @@ public class SpriteBoard {
 		boardPaint2.setColor(context.getResources().getColor(android.R.color.holo_blue_dark));
 		boardPaint2.setStyle(Paint.Style.FILL_AND_STROKE);
 
-        blackPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        blackPaint.setColor(context.getResources().getColor(android.R.color.holo_orange_dark));
-        blackPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+		blackSprite = new SpriteCircle(x, y, pieceSize, context.getResources().getColor(android.R.color.holo_orange_dark), context.getResources().getColor(android.R.color.holo_orange_light));
+		blackKingSprite = new SpriteCircle(x, y, pieceSize, context.getResources().getColor(android.R.color.holo_orange_light), context.getResources().getColor(android.R.color.white));
 
-        blackKingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        blackKingPaint.setColor(context.getResources().getColor(android.R.color.holo_orange_light));
-        blackKingPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+		whiteSprite = new SpriteCircle(x, y, pieceSize, context.getResources().getColor(android.R.color.holo_green_dark), context.getResources().getColor(android.R.color.holo_green_light));
+		whiteKingSprite = new SpriteCircle(x, y, pieceSize, context.getResources().getColor(android.R.color.holo_green_light), context.getResources().getColor(android.R.color.white));
 
-        blackBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        blackBorderPaint.setColor(context.getResources().getColor(android.R.color.holo_orange_light));
-        blackBorderPaint.setStyle(Paint.Style.STROKE);
-        blackBorderPaint.setStrokeWidth(5);
-
-        blackKingBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        blackKingBorderPaint.setColor(context.getResources().getColor(android.R.color.white));
-        blackKingBorderPaint.setStyle(Paint.Style.STROKE);
-        blackKingBorderPaint.setStrokeWidth(5);
-
-        whitePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        whitePaint.setColor(context.getResources().getColor(android.R.color.holo_green_dark));
-        whitePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-
-        whiteKingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        whiteKingPaint.setColor(context.getResources().getColor(android.R.color.holo_green_light));
-        whiteKingPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-
-        whiteBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        whiteBorderPaint.setColor(context.getResources().getColor(android.R.color.holo_green_light));
-        whiteBorderPaint.setStyle(Paint.Style.STROKE);
-        whiteBorderPaint.setStrokeWidth(5);
-
-        whiteKingBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        whiteKingBorderPaint.setColor(context.getResources().getColor(android.R.color.white));
-        whiteKingBorderPaint.setStyle(Paint.Style.STROKE);
-        whiteKingBorderPaint.setStrokeWidth(5);
-
-        borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        borderPaint.setColor(context.getResources().getColor(android.R.color.white));
-        borderPaint.setStyle(Paint.Style.STROKE);
-        borderPaint.setStrokeWidth(5);
 	}
 
 	public int getX() {
@@ -160,20 +108,12 @@ public class SpriteBoard {
 		return y;
 	}
 
-	public Bitmap getBitmap() {
-		return bitmap;
-	}
-
 	public void setX(int x) {
 		this.x = x;
 	}
 
 	public void setY(int y) {
 		this.y = y;
-	}
-
-	public void setBitmap(Bitmap bitmap) {
-		this.bitmap = bitmap;
 	}
 
 	public void draw(Canvas canvas) {
@@ -196,20 +136,14 @@ public class SpriteBoard {
 
                 if (i==draggingIndex) continue;
 
-                Paint paint, borderPaint;
-                paint = borderPaint = null;
 				which = board.get(i);
 				switch (which) {
-				case ThaiCheckerBoard.BS: paint = blackPaint; borderPaint = blackBorderPaint; break;
-				case ThaiCheckerBoard.BK: paint = blackKingPaint; borderPaint = blackKingBorderPaint; break;
-				case ThaiCheckerBoard.WS: paint = whitePaint; borderPaint = whiteBorderPaint; break;
-				case ThaiCheckerBoard.WK: paint = whiteKingPaint; borderPaint = whiteKingBorderPaint; break;
+				case ThaiCheckerBoard.BS: blackSprite.set(x + postX, y + postY); blackSprite.draw(canvas); break;
+				case ThaiCheckerBoard.BK: blackKingSprite.set(x + postX, y + postY); blackKingSprite.draw(canvas); break;
+				case ThaiCheckerBoard.WS: whiteSprite.set(x + postX, y + postY); whiteSprite.draw(canvas); break;
+				case ThaiCheckerBoard.WK: whiteKingSprite.set(x + postX, y + postY); whiteKingSprite.draw(canvas); break;
 				}
 
-                if (paint!=null) {
-                    canvas.drawOval(new RectF(postX + x, postY + y, postX + x + pieceSize, postY + y + pieceSize), paint);
-                    canvas.drawOval(new RectF(postX + x, postY + y, postX + x + pieceSize, postY + y + pieceSize), borderPaint);
-                }
 			}
 
 			if (numPlayers==1) {
@@ -225,7 +159,7 @@ public class SpriteBoard {
                     emotional = "(ಠ‿ಠ)";
                 }
 
-                canvas.drawText(emotional, bitmap.getWidth()/2 - 50, 50, textPaint);
+                canvas.drawText(emotional, boardSize/2 - 50, 50, textPaint);
 
 			}
 			
@@ -261,7 +195,7 @@ public class SpriteBoard {
 		draggingIndex = -1;
 	}
 	
-	public Bitmap drag(int touchX, int touchY) {
+	public SpriteCircle drag(int touchX, int touchY) {
 		
 		if (lastMoving!=null) return null;
 		
@@ -278,15 +212,15 @@ public class SpriteBoard {
         if (nextPlayer==ThaiCheckerBoard.WHITE_PLAYER) {
 
             switch (which) {
-                case ThaiCheckerBoard.WS: return whiteSoldier;
-                case ThaiCheckerBoard.WK: return whiteKing;
+                case ThaiCheckerBoard.WS: return whiteSprite;
+                case ThaiCheckerBoard.WK: return whiteKingSprite;
             }
 
         } else if (nextPlayer==ThaiCheckerBoard.BLACK_PLAYER) {
 
             switch (which) {
-                case ThaiCheckerBoard.BS: return blackSoldier;
-                case ThaiCheckerBoard.BK: return blackKing;
+                case ThaiCheckerBoard.BS: return blackSprite;
+                case ThaiCheckerBoard.BK: return blackKingSprite;
             }
 
         }
