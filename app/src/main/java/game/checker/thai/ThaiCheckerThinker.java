@@ -253,9 +253,9 @@ public class ThaiCheckerThinker {
 					if (level==maxDeep) best = m;
 				}
 
-				if (score > beta) {
-					return test;
-				}
+				/*if (score > beta) {
+					return best;
+				}*/
 
 			}			
 		} else {
@@ -268,9 +268,9 @@ public class ThaiCheckerThinker {
 					best = test;
 				}
 
-				if (score < alpha) {
-					return test;
-				}
+				/*if (score < alpha) {
+					return best;
+				}*/
 
 			}
 			

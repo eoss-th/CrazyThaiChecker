@@ -21,6 +21,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	private GameLogic mGameLogic;
 	
 	private ThaiCheckerBoard checkerBoard;
+
+    private boolean sound;
 	
 	public static final int XX = 0;
 	public static final int BS = 1;
@@ -38,10 +40,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	private int numPlayers;
 	
-	public GameView(Activity context, int numPlayers) {
+	public GameView(Activity context, int numPlayers, boolean sound) {
 		super(context);
 
 		this.numPlayers = numPlayers;
+        this.sound = sound;
 		setFocusable(true);	
 		
 		getHolder().addCallback(this);
@@ -99,7 +102,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		
 		handler = new Handler();
 		this.context = context;
-		newGame(this.numPlayers);
+		newGame(this.numPlayers, this.sound);
 		bgColor = context.getResources().getColor(android.R.color.holo_blue_dark);
 
         /*
@@ -122,8 +125,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		});
 		*/
 	}
+
+	public void newGame() {
+		mGameLogic.setGameState(GameLogic.PAUSE);
+		newGame(numPlayers, sound);
+		mGameLogic.setGameState(GameLogic.RUNNING);
+		mGameLogic.start();
+	}
 	
-	private void newGame(int numPlayers) {
+	private void newGame(int numPlayers, boolean sound) {
 		DisplayMetrics m = new DisplayMetrics();
 		context.getWindowManager().getDefaultDisplay().getMetrics(m);
 		
@@ -141,7 +151,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					   WS, WS, XX, WS,
 					  XX, XX, XX, XX}*/);
 		
-		spriteBoard = new SpriteBoard(this.context, checkerBoard, numPlayers, x, y, m.widthPixels);
+		spriteBoard = new SpriteBoard(this.context, checkerBoard, numPlayers, x, y, m.widthPixels, sound);
 				
 		mGameLogic = new GameLogic(getHolder(), this);
 	}
@@ -184,28 +194,28 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 										
 					String msg="";
 					switch(gameState) {
-					case ThaiCheckerBoard.GAME_OVER_BLACK_WIN: msg = "You Lose!"; break;
-					case ThaiCheckerBoard.GAME_OVER_WHITE_WIN: msg = "You Win!"; break;
-					case ThaiCheckerBoard.GAME_OVER_DRAW: msg = "Draw!"; break;
+					case ThaiCheckerBoard.GAME_OVER_BLACK_WIN: msg = "คุณแพ้!"; break;
+					case ThaiCheckerBoard.GAME_OVER_WHITE_WIN: msg = "คุณชนะ!"; break;
+					case ThaiCheckerBoard.GAME_OVER_DRAW: msg = "เสมอ!"; break;
 					}
 					
 					AlertDialog.Builder builder = new AlertDialog.Builder(context);
-					builder.setMessage(msg + "\nDo you want to continue?")
+					builder.setMessage(msg + "\nเล่นอีกตามั้ย?")
 					       .setCancelable(false)
-					       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+					       .setPositiveButton("เริ่มใหม่", new DialogInterface.OnClickListener() {
 					           public void onClick(DialogInterface dialog, int id) {
 					        	   
-					        	   newGame(numPlayers);
+					        	   newGame(numPlayers, sound);
 					        	   mGameLogic.setGameState(GameLogic.RUNNING);
 					        	   mGameLogic.start();
 					        	   
 					           }
 					       })
-					       .setNegativeButton("No", new DialogInterface.OnClickListener() {
+					       .setNegativeButton("ออก", new DialogInterface.OnClickListener() {
 					           public void onClick(DialogInterface dialog, int id) {
-					                dialog.cancel();
-					        	    mGameLogic.setGameState(GameLogic.PAUSE);
-					                context.finish();
+                                   dialog.cancel();
+                                   mGameLogic.setGameState(GameLogic.PAUSE);
+                                   context.finish();
 					           }
 					       });
 					AlertDialog alert = builder.create();

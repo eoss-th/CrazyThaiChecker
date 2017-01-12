@@ -9,7 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.SoundPool;
 
@@ -28,6 +28,7 @@ public class SpriteBoard {
 	private int swordSound;
 	private int stepSound;
 	private SoundPool soundPool;
+	private boolean sound;
 	
 	private int volume;
 
@@ -48,6 +49,8 @@ public class SpriteBoard {
     private boolean isFightingMode;
     private int count;
 
+	private Drawable arrowUp, arrowDown;
+
 	private static final int [] TABLE = {
 		-1, 0, -1, 1, -1, 2, -1, 3, 
 		4, -1, 5, -1, 6, -1, 7, -1,
@@ -59,11 +62,12 @@ public class SpriteBoard {
 		28, -1, 29, -1, 30, -1, 31, -1,		
 	};
 
-	public SpriteBoard(Context context, ThaiCheckerBoard board, int numPlayers, int x, int y, int boardSize) {
+	public SpriteBoard(Context context, ThaiCheckerBoard board, int numPlayers, int x, int y, int boardSize, boolean sound) {
 		this.board = board;
 		this.numPlayers = numPlayers;
 		this.x = x;
 		this.y = y;
+		this.sound = sound;
 		
 		this.boardSize = boardSize;
 		pieceSize = boardSize / 8;
@@ -98,6 +102,12 @@ public class SpriteBoard {
 		whiteSprite = new SpriteCircle(x, y, pieceSize, context.getResources().getColor(android.R.color.holo_green_dark), context.getResources().getColor(android.R.color.holo_green_light));
 		whiteKingSprite = new SpriteCircle(x, y, pieceSize, context.getResources().getColor(android.R.color.holo_green_light), context.getResources().getColor(android.R.color.white));
 
+		arrowUp = context.getResources().getDrawable(R.drawable.arrow_up);
+		arrowDown = context.getResources().getDrawable(R.drawable.arrow_up);
+
+		arrowDown.setBounds(boardSize/2 - pieceSize/2, y - 2*pieceSize, boardSize/2 - pieceSize/2 + pieceSize, y);
+		arrowUp.setBounds(boardSize/2 - pieceSize/2, y + boardSize, boardSize/2 - pieceSize/2 + pieceSize, y + boardSize + pieceSize);
+
 	}
 
 	public int getX() {
@@ -122,6 +132,9 @@ public class SpriteBoard {
 			
 			//canvas.drawBitmap(bitmap, x, y, null);
 			canvas.drawRect(new Rect(x, y, x + boardSize, y + boardSize), boardPaint1);
+
+			arrowDown.draw(canvas);
+			arrowUp.draw(canvas);
 
 			int postX, postY;
 			
@@ -159,7 +172,7 @@ public class SpriteBoard {
                     emotional = "(ಠ‿ಠ)";
                 }
 
-                canvas.drawText(emotional, boardSize/2 - 50, 50, textPaint);
+                canvas.drawText(emotional, boardSize/2 - 50, boardSize/8, textPaint);
 
 			}
 			
@@ -238,11 +251,13 @@ public class SpriteBoard {
 
                 try {
                     board = lastMoving.next();
-                    if (lastMoving instanceof ThaiCheckerBoard.Killing) {
-                        soundPool.play(swordSound, volume, volume, 1, 0, 1);
-                    } else {
-                        soundPool.play(stepSound, volume, volume, 1, 0, 1);
-                    }
+					if (sound) {
+						if (lastMoving instanceof ThaiCheckerBoard.Killing) {
+							soundPool.play(swordSound, volume, volume, 1, 0, 1);
+						} else {
+							soundPool.play(stepSound, volume, volume, 1, 0, 1);
+						}
+					}
 
                     int state = board.state();
                     if (state != ThaiCheckerBoard.GAME_PLAYING) return state;

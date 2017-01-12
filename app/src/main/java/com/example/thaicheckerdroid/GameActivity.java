@@ -15,7 +15,9 @@ public class GameActivity extends Activity {
         super.onCreate(savedInstanceState);
 
 		int numPlayers = getIntent().getIntExtra("numPlayers", 1);
-        gameView = new GameView(this, numPlayers);
+        boolean sound = getIntent().getBooleanExtra("sound", false);
+        System.out.println(sound);
+        gameView = new GameView(this, numPlayers, sound);
         setContentView(gameView);
     }
     
@@ -27,9 +29,9 @@ public class GameActivity extends Activity {
 	public void finish() {
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("Are you sure you want to exit?")
-		       .setCancelable(false)
-		       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+		builder.setMessage("ไม่เล่นแล้วเหรอ?")
+		       .setCancelable(true)
+		       .setPositiveButton("ออก", new DialogInterface.OnClickListener() {
 		           public void onClick(DialogInterface dialog, int id) {
 		        	   
 		        	   gameView.release();
@@ -37,9 +39,11 @@ public class GameActivity extends Activity {
 		        	   
 		           }
 		       })
-		       .setNegativeButton("No", new DialogInterface.OnClickListener() {
+		       .setNegativeButton("เริ่มใหม่", new DialogInterface.OnClickListener() {
 		           public void onClick(DialogInterface dialog, int id) {
-		                dialog.cancel();
+
+					   gameView.newGame();
+					   dialog.cancel();
 		           }
 		       });
 		AlertDialog alert = builder.create();

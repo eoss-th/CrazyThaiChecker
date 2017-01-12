@@ -9,8 +9,16 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.ToggleButton;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class MainActivity extends Activity {
+
+    private ToggleButton optionButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -25,6 +33,7 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				Intent i = new Intent(MainActivity.this, GameActivity.class);
 				i.putExtra("numPlayers", 1);
+                i.putExtra("sound", optionButton.isChecked());
 				startActivity(i);
 			}
 		});
@@ -36,17 +45,49 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 Intent i = new Intent(MainActivity.this, GameActivity.class);
                 i.putExtra("numPlayers", 2);
+                i.putExtra("sound", optionButton.isChecked());
                 startActivity(i);
             }
         });
 
-        Button optionButton = (Button) findViewById(R.id.optionButton);
-        optionButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-			}
-		});
+        optionButton = (ToggleButton) findViewById(R.id.optionButton);
+        optionButton.setChecked(loadOption());
     }
 
+    boolean loadOption() {
+
+        try {
+            FileInputStream fi = openFileInput("option.ser");
+
+            ObjectInputStream oi = new ObjectInputStream(fi);
+            Boolean sound = (Boolean) oi.readObject();
+            return sound;
+
+        } catch (Exception e) {
+
+        }
+        return true;
+    }
+
+    void saveOption() {
+
+        try {
+
+            FileOutputStream fout = openFileOutput("option.ser", Activity.MODE_PRIVATE);
+
+            ObjectOutputStream os = new ObjectOutputStream(fout);
+            os.writeObject(optionButton.isChecked());
+
+            fout.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        saveOption();
+        super.onDestroy();
+    }
 }

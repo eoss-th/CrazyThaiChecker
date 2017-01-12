@@ -57,29 +57,18 @@ public class ThaiCheckerBoard {
 		{20, 21, 28, 29}, {21, 22, 29, 30}, {22, 23, 30, 31}, {23, -1, 31, -1}, 
 		{-1, 24, -1, -1}, {24, 25, -1, -1}, {25, 26, -1, -1}, {26, 27, -1, -1}, 
 		};
-	/*
-	private static final int [] scoreBoard = {	
-		4, 4, 4, 4,
-	   4, 3, 3, 3,
-	    3, 2, 2, 4,
-	   4, 2, 1, 3,
-  	    3, 1, 2, 4,
-	   4, 2, 2, 3,
-	    3, 3, 3, 4,
-	   4, 4, 4, 4,
-	};*/
 
-	private static final int [] scoreBoard = {
-			0, 1, 1, 0,
-			0, 0, 1, 0,
-			0, 0, 0, 0,
-			0, 0, 0, 0,
-			0, 0, 0, 0,
-			0, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 1, 1, 0,
+	private static final int [] scoreBoard = {	
+		1, 1, 1, 1,
+	   0, 0, 1, 0,
+	    0, 0, 0, 0,
+	   0, 0, 0, 0,
+  	    0, 0, 0, 0,
+	   0, 0, 0, 0,
+	    0, 1, 0, 0,
+	   1, 1, 1, 1,
 	};
-	
+
 	public class Moving {
 		int player, from, to;
 		ThaiCheckerBoard nextBoard;
@@ -172,7 +161,7 @@ public class ThaiCheckerBoard {
         return score;
     }
 
-	public int _score() {
+	public int score() {
 		int value, which;
 		
 		int score = 0;
@@ -183,50 +172,23 @@ public class ThaiCheckerBoard {
 			which = gameState[w];
 			
 			switch (which) {
-			case BS: value = (w >= 24 && w <=27)? 70: (w==0||w==1||w==2||w==6) ? 60 : 50; blackCount++; break;
+			case BS: value = (w >= 24 && w <=27)? 70: 50 + scoreBoard[w]; blackCount++; break;
 			case BK: value = 100; blackCount++; break;
-			case WS: value = (w >= 4 && w <=7)? -70: (w==25||w==29||w==30||w==31) ? -60 : -50; whiteCount++; break;
+			case WS: value = (w >= 4 && w <=7)? -70: -50 - scoreBoard[w]; whiteCount++; break;
 			case WK: value = -100; whiteCount++; break;
 			default: value = 0;
 			}
 			
-			score += value + scoreBoard[w];
+			score += value;
 		}
 
         //Win
         if (whiteCount==0) {
-            return 100;
+            return Integer.MAX_VALUE;
         }
 		
 		return score;
 	}
-
-    public int score() {
-        int which;
-
-        int score = 0;
-        int blackCount = 0;
-        int whiteCount = 0;
-        for (int w=0; w<gameState.length; w++) {
-
-            which = gameState[w];
-
-            switch (which) {
-                case BS: score += (w >= 24 && w <=27)? 12: 10 + scoreBoard[w]; blackCount++; break;
-                case BK: score += 20; blackCount++; break;
-                case WS: score -= (w >= 4 && w <=7)? 12: 10 + scoreBoard[w]; whiteCount++; break;
-                case WK: score -= 20; whiteCount++; break;
-            }
-
-        }
-
-        //Win
-        if (whiteCount==0) {
-            return 50;
-        }
-
-        return score;
-    }
 
     public boolean isfightingMode() {
         return fightingMode;
@@ -261,7 +223,7 @@ public class ThaiCheckerBoard {
 			if (whiteTeamCount==0)
 				return GAME_OVER_BLACK_WIN;
 
-		}  else if (blackTeamCount==1 && (gameState[3]==XX && gameState[28]==XX)) {
+		}  else if (blackTeamCount==1 && blackKingCount==1 && (gameState[3]==XX && gameState[28]==XX)) {
 
 			return GAME_OVER_DRAW;
 		}
